@@ -1,0 +1,146 @@
+/* *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center ;
+    height: 100vh;
+    flex-direction: column;
+    background-color: navajowhite;
+}
+
+section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 400px;
+    background-color: #fff;
+    padding: 25px;
+    box-shadow: 0 0 10  px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+
+}
+
+.choice{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.choice h4{
+display: flex;
+flex-direction: column;
+align-items: center;
+text-transform: uppercase;
+color: grey;
+}
+
+img{
+    width: 60px;
+    height: 60px;
+    margin : 20px 0;
+}
+
+button{
+    padding: 5px 30px;
+    margin-top: 20px;
+    border: solid 2px navajowhite;
+    background-color: navajowhite;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: 0.5s;
+    text-transform: capitalize;
+}
+
+button:focus{
+    background: #ffffff;
+    color: navajowhite;
+} */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    flex-direction: column;
+    background-color: navajowhite;
+}
+
+section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 400px;
+    background-color: #fff;
+    padding: 25px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.choice {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.choice h4 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-transform: uppercase;
+    color: grey;
+}
+
+img {
+    width: 60px;
+    height: 60px;
+    margin: 20px 0;
+}
+
+button {
+    padding: 5px 30px;
+    margin-top: 20px;
+    border: solid 2px navajowhite;
+    background-color: navajowhite;
+    color: #000;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: 0.5s;
+    text-transform: capitalize;
+}
+
+button:hover {
+    background: #fff;
+    color: navajowhite;
+}
+
+
+@media (max-width: 480px) {
+    section {
+        width: 90%;
+        padding: 15px;
+    }
+
+    img {
+        width: 50px;
+        height: 50px;
+    }
+
+    button {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+}
