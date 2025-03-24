@@ -1,118 +1,131 @@
-// const contentChoiceOrdinator = document.getElementById(Ordinator_Choice);
-// const contentChoiceUsers = document.getElementById(User_Choice);
-// const contentResults = document.getElementById(results);
 
-// const possibleChoice = document.querySelectorAll('button');
+// const contentChoiceOrdinator = document.getElementById("Ordinator_Choice");
+// const contentChoiceUsers = document.getElementById("User_Choice");
+// const contentResults = document.getElementById("results");
 
-// let userChoice 
-// let results
-// let ordinateurChoice
+// const possibleChoices = document.querySelectorAll("button");
 
-// possibleChoice.forEach(possibleChoice => possibleChoice.addEventListener('click', (e)=>{
-//     userChoice = e.target.id;
+// let userChoice;
+// let results;
+// let ordinateurChoice;
 
-//     contentChoiceUsers.innerHTML = `<img src= "${userChoice}.png">`
+// possibleChoices.forEach(choice => choice.addEventListener("click", (e) => {
+//     userChoice = e.target.id; // Récupérer le choix de l'utilisateur
 
-//     generate_choice_ordi()
-//     verification()
-// }))
+//     // Affichage de l'image correspondant au choix de l'utilisateur
+//     contentChoiceUsers.innerHTML = `<img src="images/${userChoice}.png" alt="${userChoice}">`;
 
+//     // Génération du choix de l'ordinateur
+//     generate_choice_ordi();
+    
+//     // Vérification du gagnant
+//     verification();
+// }));
 
-// function generate_choice_ordi (){
-//     random = Math.floor(Math.random()*3) +1 //generate number between 1 and 3
-//     if(random === 1){
-//         ordinateurChoice = "Stone"
-//     }
-//     if(random === 2){
-//         ordinateurChoice = "Paper"
-//     }
-//     if(random === 3){
-//         ordinateurChoice = "Chisel"
-//     }
-//     contentChoiceOrdinator.innerHTML = `<img src="${ordinateurChoice}.png"`
+// // Générer le choix de l'ordinateur aléatoirement
+// function generate_choice_ordi() {
+//     const choices = ["rock", "paper", "scissors"];
+//     const randomIndex = Math.floor(Math.random() * choices.length);
+//     ordinateurChoice = choices[randomIndex];
+
+//     // Affichage de l'image correspondant au choix de l'ordinateur
+//     contentChoiceOrdinator.innerHTML = `<img src="images/${ordinateurChoice}.png" alt="${ordinateurChoice}">`;
 // }
- 
 
-// function verification(){
-//     // Equality
-//     if(userChoice == ordinateurChoice){
-//         results = "Egalité!"
-//     }
-
-//    //Users Lost
-//     if (userChoice == "Stone" && ordinateurChoice == "Paper") {
-//         results = "Perdu!"
-//     }
-
-//     if (userChoice == "Paper" && ordinateurChoice == "Chisel") {
-//         results = "Perdu!"
-//     }
-//     if (userChoice == "Chisel" && ordinateurChoice == "Stone") {
-//         results = "Perdu!"
-//     }
-
-//     // Users Win
-//     if (userChoice == "Stone" && ordinateurChoice == "Chisel") {
-//         results = "Gangné!"
-//     }
-
-//     if (userChoice == "Chisel" && ordinateurChoice == "Paper") {
-//         results = "Gangné!"
-//     }
-
-//     if (userChoice == "Paper" && ordinateurChoice == "Stone") {
-//         results = "Gangné!"
+// // Vérifier qui a gagné
+// function verification() {
+//     if (userChoice === ordinateurChoice) {
+//         results = "Égalité !";
+//     } else if (
+//         (userChoice === "rock" && ordinateurChoice === "scissors") ||
+//         (userChoice === "scissors" && ordinateurChoice === "paper") ||
+//         (userChoice === "paper" && ordinateurChoice === "rock")
+//     ) {
+//         results = " Your Win ! 🎉";
+//     } else {
+//         results = "Your Lost !";
 //     }
 
 //     contentResults.innerHTML = results;
 // }
 
+
 const contentChoiceOrdinator = document.getElementById("Ordinator_Choice");
 const contentChoiceUsers = document.getElementById("User_Choice");
 const contentResults = document.getElementById("results");
-
-const possibleChoices = document.querySelectorAll("button");
+const pointsDisplay = document.getElementById("points");
+const creditDisplay = document.getElementById("credit");
+const possibleChoices = document.querySelectorAll(".choice-btn");
+const startGameButton = document.getElementById("startGame");
+const instructions = document.getElementById("instructions");
 
 let userChoice;
-let results;
 let ordinateurChoice;
+let points = 0;
+let credit = 0;
+let gameStarted = false;
+
+// Function to start the game
+startGameButton.addEventListener("click", () => {
+    gameStarted = true;
+    instructions.style.display = "none";
+});
 
 possibleChoices.forEach(choice => choice.addEventListener("click", (e) => {
-    userChoice = e.target.id; // Récupérer le choix de l'utilisateur
+    if (!gameStarted) return;
 
-    // Affichage de l'image correspondant au choix de l'utilisateur
+    userChoice = e.target.id; // Get the user's choice
     contentChoiceUsers.innerHTML = `<img src="images/${userChoice}.png" alt="${userChoice}">`;
 
-    // Génération du choix de l'ordinateur
     generate_choice_ordi();
-    
-    // Vérification du gagnant
     verification();
 }));
 
-// Générer le choix de l'ordinateur aléatoirement
+// Generate the computer's choice randomly
 function generate_choice_ordi() {
     const choices = ["rock", "paper", "scissors"];
     const randomIndex = Math.floor(Math.random() * choices.length);
     ordinateurChoice = choices[randomIndex];
-
-    // Affichage de l'image correspondant au choix de l'ordinateur
     contentChoiceOrdinator.innerHTML = `<img src="images/${ordinateurChoice}.png" alt="${ordinateurChoice}">`;
 }
 
-// Vérifier qui a gagné
+// Check who won
 function verification() {
     if (userChoice === ordinateurChoice) {
-        results = "Égalité !";
+        contentResults.textContent = "It's a tie!";
     } else if (
         (userChoice === "rock" && ordinateurChoice === "scissors") ||
         (userChoice === "scissors" && ordinateurChoice === "paper") ||
         (userChoice === "paper" && ordinateurChoice === "rock")
     ) {
-        results = " Your Win ! 🎉";
+        points++;
+        if (credit < 0) credit = 0;
+        contentResults.textContent = "You win! 🎉";
     } else {
-        results = "Your Lost !";
+        if (points > 0) {
+            points--;
+            credit--;
+        } else {
+            credit--;
+        }
+        contentResults.textContent = "You lose!";
     }
 
-    contentResults.innerHTML = results;
+    pointsDisplay.textContent = points;
+    creditDisplay.textContent = credit;
+
+    if (points === 7 && credit === 0) {
+        contentResults.textContent = "Congratulations, you won the game! 🏆";
+        resetGame();
+    }
+}
+
+// Reset the game
+function resetGame() {
+    points = 0;
+    credit = 0;
+    pointsDisplay.textContent = points;
+    creditDisplay.textContent = credit;
+    gameStarted = false;
+    instructions.style.display = "block";
 }
