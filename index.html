@@ -1,62 +1,74 @@
-<!-- 
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pierre Papier Ciseaux</title>
     <link rel="stylesheet" href="style.css">
-    <title>Rock Paper Scissors Game</title>
 </head>
 <body>
-    <section>
-        <div class="choice">
-            <h4>You: <span id="User_Choice"></span></h4>
-            <h4>Computer: <span id="Ordinator_Choice"></span></h4>
-        </div>
-        <h4><span id="results"></span></h4>
+    <div class="game-container">
+        <h1>Pierre Papier Ciseaux</h1>
+        <p class="subtitle">Atteignez 7 points pour gagner!</p>
 
-        <div class="button_choice"> 
-            <button class="choice-btn" id="rock">Rock</button>
-            <button class="choice-btn" id="paper">Paper</button>
-            <button class="choice-btn" id="scissors">Scissors</button>
+        <!-- Instructions -->
+        <div id="instructions" class="instructions">
+            <h2>Bienvenue!</h2>
+            <p>Pour gagner, vous devez atteindre 7 points consécutifs. Si vous perdez, vous perdez un point. Si vous n'avez plus de points, votre crédit diminue. Bonne chance!</p>
+            <button class="start-btn" id="startGame">Commencer le Jeu</button>
         </div>
-    </section>
 
-    <script src="script.js"></script>
-</body>
-</html> -->
+        <!-- Scores -->
+        <div class="scores-container hidden" id="scoresContainer">
+            <div class="score-box">
+                <h3>POINTS</h3>
+                <div class="score-value"><span id="points">0</span>/7</div>
+            </div>
+            <div class="score-box">
+                <h3>CRÉDIT</h3>
+                <div class="score-value" id="credit">0</div>
+            </div>
+        </div>
 
+        <!-- Battle Zone -->
+        <div class="battle-zone hidden" id="battleZone">
+            <div class="choice-display">
+                <h3>Vous</h3>
+                <div class="choice-img" id="userChoice">?</div>
+            </div>
+            <div class="vs-text">VS</div>
+            <div class="choice-display">
+                <h3>Ordinateur</h3>
+                <div class="choice-img" id="computerChoice">?</div>
+            </div>
+        </div>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Rock Paper Scissors Game</title>
-</head>
-<body>
-    <section>
-        <div id="instructions">
-            <p>Welcome to the Rock-Paper-Scissors game! To win, you must reach 7 consecutive points. If you lose, you lose a point. If you already have a point and you lose, your credit decreases. Good luck!</p>
-            <button id="startGame">Start Game</button>
+        <!-- Result -->
+        <div class="result-text" id="results"></div>
+
+        <!-- Buttons -->
+        <div class="button-choice hidden" id="buttonChoice">
+            <button class="choice-btn" id="rock">
+                <span class="emoji">🪨</span>
+                <span>Pierre</span>
+            </button>
+            <button class="choice-btn" id="paper">
+                <span class="emoji">📄</span>
+                <span>Papier</span>
+            </button>
+            <button class="choice-btn" id="scissors">
+                <span class="emoji">✂️</span>
+                <span>Ciseaux</span>
+            </button>
         </div>
-        <div class="choice">
-            <h4>You: <span id="User_Choice"></span></h4>
-            <h4>Computer: <span id="Ordinator_Choice"></span></h4>
-        </div>
-        <h4><span id="results"></span></h4>
-        <div class="scores">
-            <h4>Points: <span id="points">0</span>/7</h4>
-            <h4>Credit: <span id="credit">0</span></h4>
-        </div>
-        <div class="button_choice">
-            <button class="choice-btn" id="rock">Rock</button>
-            <button class="choice-btn" id="paper">Paper</button>
-            <button class="choice-btn" id="scissors">Scissors</button>
-        </div>
-    </section>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="victoryModal" class="instructions hidden">
+        <h2>🏆 Félicitations!</h2>
+        <p id="victoryMessage">Vous avez gagné la partie!</p>
+        <button class="start-btn" id="playAgain">Rejouer</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
