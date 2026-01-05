@@ -100,14 +100,16 @@ function verify() {
         (userChoice === "scissors" && computerChoice === "paper") ||
         (userChoice === "paper" && computerChoice === "rock")
     ) {
-        points++;
-        if (credit < 0) credit++;
+        if (credit < 0) {
+            credit++;
+        } else {
+            points++;
+        }
         contentResults.textContent = "Vous gagnez! 🎉";
         contentResults.classList.add("win");
     } else {
         if (points > 0) {
             points--;
-            credit--;
         } else {
             credit--;
         }
