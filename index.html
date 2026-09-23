@@ -2,74 +2,100 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pierre Papier Ciseaux</title>
+
+   
+    <link rel="icon" type="image/png" href="./images/rock.png">
+
+  
+    <meta property="og:title" content="Pierre Papier Ciseaux - Multijoueur">
+    <meta property="og:description" content="Viens me défier en direct au Pierre Papier Ciseaux !">
+    <meta property="og:type" content="website">
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
         <h1>Pierre Papier Ciseaux</h1>
-        <p class="subtitle">Atteignez 7 points pour gagner!</p>
+        <p class="subtitle" id="gameSubtitle">Atteignez 7 points pour gagner !</p>
 
-        <!-- Instructions -->
-        <div id="instructions" class="instructions">
-            <h2>Bienvenue!</h2>
-            <p>Pour gagner, vous devez atteindre 7 points consécutifs. Si vous perdez, vous perdez un point. Si vous n'avez plus de points, votre crédit diminue. Bonne chance!</p>
-            <button class="start-btn" id="startGame">Commencer le Jeu</button>
+       
+        <div id="lobbyScreen" class="instructions">
+            <h2>👋 Bienvenue !</h2>
+            <p>Entre ton pseudo pour lancer une partie :</p>
+            <input type="text" id="playerPseudo" placeholder="Ton pseudo..." maxlength="15" class="pseudo-input">
+            
+            <div class="mode-buttons">
+                <button class="start-btn" id="btnSolo">🤖 Jouer Solo (vs Ordi)</button>
+                <button class="start-btn online-btn" id="btnMulti">🌍 Jouer en Ligne</button>
+            </div>
         </div>
 
-        <!-- Scores -->
+        
+        <div id="multiLobbyScreen" class="instructions hidden">
+            <h2>Salon Multijoueur</h2>
+            <p>Envoie ce lien à ton ami pour qu'il te rejoigne :</p>
+            <div class="room-code-badge" id="roomCodeDisplay">----</div>
+            <button class="start-btn" id="btnCopyLink">📋 Copier le lien d'invitation</button>
+            <p id="waitingMessage" class="waiting-text">⏳ En attente de ton adversaire...</p>
+        </div>
+
+       
         <div class="scores-container hidden" id="scoresContainer">
             <div class="score-box">
-                <h3>POINTS</h3>
-                <div class="score-value"><span id="points">0</span>/7</div>
+                <h3 id="scoreLabelPlayer">POINTS</h3>
+                <div class="score-value" id="playerScoreDisplay"><span id="points">0</span>/7</div>
             </div>
             <div class="score-box">
-                <h3>CRÉDIT</h3>
+                <h3 id="scoreLabelOpponent">CRÉDIT</h3>
                 <div class="score-value" id="credit">0</div>
             </div>
         </div>
 
-        <!-- Battle Zone -->
+      
         <div class="battle-zone hidden" id="battleZone">
             <div class="choice-display">
-                <h3>Vous</h3>
+                <h3 id="userPseudoLabel" class="player-name">Vous</h3>
                 <div class="choice-img" id="userChoice">?</div>
             </div>
             <div class="vs-text">VS</div>
             <div class="choice-display">
-                <h3>Ordinateur</h3>
+                <h3 id="opponentPseudoLabel" class="player-name">Ordinateur</h3>
                 <div class="choice-img" id="computerChoice">?</div>
             </div>
         </div>
 
-        <!-- Result -->
+        
         <div class="result-text" id="results"></div>
 
-        <!-- Buttons -->
+        
         <div class="button-choice hidden" id="buttonChoice">
             <button class="choice-btn" id="rock">
-                <span class="emoji">🪨</span>
+                <img src="./images/rock.png" alt="Pierre" onerror="this.style.display='none'">
                 <span>Pierre</span>
             </button>
             <button class="choice-btn" id="paper">
-                <span class="emoji">📄</span>
+                <img src="./images/paper.png" alt="Papier" onerror="this.style.display='none'">
                 <span>Papier</span>
             </button>
             <button class="choice-btn" id="scissors">
-                <span class="emoji">✂️</span>
+                <img src="./images/scissors.png" alt="Ciseaux" onerror="this.style.display='none'">
                 <span>Ciseaux</span>
             </button>
         </div>
-    </div>
 
-    <!-- Victory Modal -->
-    <div id="victoryModal" class="instructions hidden">
-        <h2>🏆 Félicitations!</h2>
-        <p id="victoryMessage">Vous avez gagné la partie!</p>
-        <button class="start-btn" id="playAgain">Rejouer</button>
-    </div>
+        
+        <div id="victoryModal" class="instructions hidden">
+            <h2 id="victoryTitle">🏆 Fin de match !</h2>
+            <p id="victoryMessage">Vous avez gagné !</p>
+            <button class="start-btn" id="playAgain">Rejouer</button>
+        </div>
 
+    </div> 
+
+    
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

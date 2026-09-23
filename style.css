@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -11,14 +13,19 @@ body {
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
+    padding: 15px;
+}
+
+/* INDISPENSABLE : permet de cacher/afficher les étapes du jeu */
+.hidden {
+    display: none !important;
 }
 
 .game-container {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    padding: 40px;
+    padding: 30px;
     max-width: 600px;
     width: 100%;
     backdrop-filter: blur(10px);
@@ -27,8 +34,8 @@ body {
 h1 {
     text-align: center;
     color: #667eea;
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+    font-size: 2.2rem;
+    margin-bottom: 5px;
     font-weight: 700;
 }
 
@@ -36,37 +43,66 @@ h1 {
     text-align: center;
     color: #666;
     font-size: 0.9rem;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
-/* Instructions & Victory Modal */
+/* Instructions & Salons d'attente */
 .instructions {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 30px;
+    padding: 25px;
     border-radius: 15px;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
 .instructions h2 {
     font-size: 1.5rem;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .instructions p {
-    line-height: 1.6;
+    line-height: 1.5;
     margin-bottom: 20px;
     font-size: 0.95rem;
 }
 
+/* Champ de saisie du pseudo */
+.pseudo-input {
+    width: 85%;
+    max-width: 250px;
+    padding: 12px 18px;
+    border-radius: 50px;
+    border: 2px solid white;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+    outline: none;
+    font-family: inherit;
+    color: #4a5568;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.pseudo-input:focus {
+    border-color: #ffd700;
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Boutons d'action */
 .start-btn {
     background: white;
     color: #667eea;
     border: none;
-    padding: 15px 40px;
+    padding: 12px 28px;
     border-radius: 50px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -78,43 +114,73 @@ h1 {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
+.online-btn {
+    background: #10b981;
+    color: white;
+}
+
+.online-btn:hover {
+    background: #059669;
+}
+
+/* Badge du code de salon multijoueur */
+.room-code-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 8px 24px;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+    border: 1px dashed white;
+}
+
+.waiting-text {
+    margin-top: 15px;
+    font-style: italic;
+    opacity: 0.9;
+}
+
 /* Scores */
 .scores-container {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 30px;
-    gap: 20px;
+    margin-bottom: 25px;
+    gap: 15px;
 }
 
 .score-box {
     flex: 1;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 20px;
+    padding: 15px;
     border-radius: 15px;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .score-box h3 {
-    font-size: 0.9rem;
-    font-weight: 400;
-    margin-bottom: 10px;
-    opacity: 0.9;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+    opacity: 0.95;
+    text-transform: uppercase;
 }
 
 .score-value {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
 }
 
-/* Choices Display */
+/* Zone de combat */
 .battle-zone {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    margin: 30px 0;
-    min-height: 200px;
+    margin: 20px 0;
+    min-height: 160px;
 }
 
 .choice-display {
@@ -122,47 +188,65 @@ h1 {
     flex: 1;
 }
 
-.choice-display h3 {
+.player-name {
     color: #667eea;
-    margin-bottom: 15px;
-    font-size: 1.2rem;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .choice-img {
-    width: 120px;
-    height: 120px;
+    width: 110px;
+    height: 110px;
     background: #f0f0f0;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
-    font-size: 4rem;
+    font-size: 3rem;
+    color: #667eea;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+/* VOS VRAIES IMAGES DANS LES BULLES */
+.choice-img img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
 }
 
 .choice-img.active {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
 .vs-text {
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: #667eea;
-    margin: 0 20px;
+    margin: 0 10px;
 }
 
-/* Results */
+/* Résultats */
 .result-text {
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
     color: #667eea;
-    margin: 20px 0;
-    min-height: 40px;
+    margin: 15px 0;
+    min-height: 35px;
 }
 
 .result-text.win {
@@ -173,21 +257,21 @@ h1 {
     color: #ef4444;
 }
 
-/* Buttons */
+/* Boutons de sélection d'armes */
 .button-choice {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .choice-btn {
     background: white;
-    border: 3px solid #667eea;
+    border: 2px solid #667eea;
     color: #667eea;
-    padding: 15px 30px;
+    padding: 12px 24px;
     border-radius: 50px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -196,10 +280,78 @@ h1 {
     gap: 10px;
 }
 
+/* IMAGES DANS LES BOUTONS DU BAS */
+.choice-btn img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
 .choice-btn:hover {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(102, 
-126, 234, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* =============================================
+   RESPONSIVE : ADAPTATION PARFAITE AUX SMARTPHONES
+   ============================================= */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .game-container {
+        padding: 20px 15px;
+    }
+
+    h1 {
+        font-size: 1.7rem;
+    }
+
+    .instructions {
+        padding: 20px 15px;
+    }
+
+    .choice-img {
+        width: 85px;
+        height: 85px;
+        font-size: 2.2rem;
+    }
+
+    .player-name {
+        font-size: 0.95rem;
+        max-width: 90px;
+    }
+
+    .vs-text {
+        font-size: 1.2rem;
+        margin: 0 5px;
+    }
+
+    .score-value {
+        font-size: 1.5rem;
+    }
+
+    .button-choice {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .choice-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 14px;
+    }
+
+    .mode-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .start-btn {
+        width: 100%;
+    }
 }

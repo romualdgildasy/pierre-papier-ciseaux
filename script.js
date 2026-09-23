@@ -1,155 +1,280 @@
-const contentChoiceComputer = document.getElementById("computerChoice");
-const contentChoiceUser = document.getElementById("userChoice");
-const contentResults = document.getElementById("results");
-const pointsDisplay = document.getElementById("points");
-const creditDisplay = document.getElementById("credit");
-const possibleChoices = document.querySelectorAll(".choice-btn");
-const startGameButton = document.getElementById("startGame");
-const instructions = document.getElementById("instructions");
+const choiceImages = {
+    rock: "./images/rock.png",
+    paper: "./images/paper.png",
+    scissors: "./images/scissors.png"
+};
+
+// DOM Elements
+const lobbyScreen = document.getElementById("lobbyScreen");
+const multiLobbyScreen = document.getElementById("multiLobbyScreen");
 const scoresContainer = document.getElementById("scoresContainer");
 const battleZone = document.getElementById("battleZone");
 const buttonChoice = document.getElementById("buttonChoice");
 const victoryModal = document.getElementById("victoryModal");
-const playAgainButton = document.getElementById("playAgain");
+const victoryTitle = document.getElementById("victoryTitle");
 const victoryMessage = document.getElementById("victoryMessage");
 
-let userChoice;
-let computerChoice;
+const playerPseudoInput = document.getElementById("playerPseudo");
+const userPseudoLabel = document.getElementById("userPseudoLabel");
+const opponentPseudoLabel = document.getElementById("opponentPseudoLabel");
+
+const scoreBoxes = document.querySelectorAll(".score-box h3");
+const pointsDisplay = document.getElementById("points");
+const creditDisplay = document.getElementById("credit");
+const subtitle = document.querySelector(".subtitle");
+
+const btnSolo = document.getElementById("btnSolo");
+const btnMulti = document.getElementById("btnMulti");
+const btnCopyLink = document.getElementById("btnCopyLink");
+const playAgainButton = document.getElementById("playAgain");
+
+const roomCodeDisplay = document.getElementById("roomCodeDisplay");
+const contentChoiceUser = document.getElementById("userChoice");
+const contentChoiceComputer = document.getElementById("computerChoice");
+const contentResults = document.getElementById("results");
+const possibleChoices = document.querySelectorAll(".choice-btn");
+
+
+let userChoice = null;
+let computerChoice = null;
 let points = 0;
 let credit = 0;
+let opponentPoints = 0;
 let gameStarted = false;
+let gameMode = "solo";
+let currentRoomId = null;
+let socket = null;
 
-const choiceEmojis = {
-    rock: "🪨",
-    paper: "📄",
-    scissors: "✂️"
-};
+// Gestion du pseudo avec LocalStorage
+const savedPseudo = localStorage.getItem("rps_pseudo");
+if (savedPseudo) playerPseudoInput.value = savedPseudo;
 
-// AU CHARGEMENT, cacher tout sauf les instructions
-scoresContainer.style.display = "none";
-battleZone.style.display = "none";
-buttonChoice.style.display = "none";
-victoryModal.style.display = "none";
-contentResults.textContent = "";
-
-// Start game
-startGameButton.addEventListener("click", startGame);
-playAgainButton.addEventListener("click", startGame);
-
-function startGame() {
-    gameStarted = true;
-    points = 0;
-    credit = 0;
-    updateDisplay();
-
-    // Cacher instructions et afficher le jeu
-    instructions.style.display = "none";
-    scoresContainer.style.display = "flex";
-    battleZone.style.display = "flex";
-    buttonChoice.style.display = "flex";
-
-    // Cacher le modal si visible
-    victoryModal.style.display = "none";
-
-    contentChoiceUser.textContent = "?";
-    contentChoiceComputer.textContent = "?";
-    contentResults.textContent = "Choisissez votre arme!";
-    contentResults.className = "result-text";
-
-    contentChoiceUser.classList.remove("active");
-    contentChoiceComputer.classList.remove("active");
+function getPseudo() {
+    let name = playerPseudoInput.value.trim();
+    if (!name) name = "Joueur" + Math.floor(Math.random() * 100);
+    localStorage.setItem("rps_pseudo", name);
+    return name;
 }
 
-// Handle user choice
-possibleChoices.forEach(choice => {
-    choice.addEventListener("click", (e) => {
-        if (!gameStarted) return;
+// Détection d'un code dans l'URL (?room=XXXX)
+const urlParams = new URLSearchParams(window.location.search);
+const roomParam = urlParams.get("room");
+if (roomParam) {
+    btnSolo.style.display = "none";
+    btnMulti.textContent = "Rejoindre la partie";
+}
 
-        userChoice = e.currentTarget.id;
-        playRound();
+// 1. MODE SOLO (7 points + système de crédit d'origine)
+btnSolo.addEventListener("click", () => {
+    gameMode = "solo";
+    const myName = getPseudo();
+    userPseudoLabel.textContent = myName;
+    opponentPseudoLabel.textContent = "Ordinateur";
+
+    subtitle.classList.remove("hidden");
+    subtitle.textContent = "Atteignez 7 points pour gagner !";
+    scoreBoxes[0].textContent = "POINTS";
+    scoreBoxes[1].textContent = "CRÉDIT";
+    document.querySelector(".score-value").innerHTML = `<span id="points">0</span>/7`;
+
+    lobbyScreen.classList.add("hidden");
+    startRoundUI();
+});
+
+// 2. MODE MULTIJOUEUR (Premier à 3 points sec)
+btnMulti.addEventListener("click", () => {
+    gameMode = "multi";
+    const myName = getPseudo();
+    userPseudoLabel.textContent = myName;
+
+    lobbyScreen.classList.add("hidden");
+    multiLobbyScreen.classList.remove("hidden");
+
+    // Connexion au serveur Node.js local
+    socket = io("http://localhost:3000");
+
+    currentRoomId = roomParam || Math.random().toString(36).substring(2, 7).toUpperCase();
+    roomCodeDisplay.textContent = currentRoomId;
+
+    socket.emit("joinRoom", { roomId: currentRoomId, pseudo: myName });
+
+    btnCopyLink.addEventListener("click", () => {
+        const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
+        navigator.clipboard.writeText(inviteUrl);
+        btnCopyLink.textContent = "✅ Lien copié !";
+        setTimeout(() => btnCopyLink.textContent = "📋 Copier le lien d'invitation", 2000);
+    });
+
+    socket.on("gameStart", ({ opponentPseudo }) => {
+        opponentPseudoLabel.textContent = opponentPseudo;
+        multiLobbyScreen.classList.add("hidden");
+
+        subtitle.classList.remove("hidden");
+        subtitle.textContent = "Premier à 3 points gagne le match !";
+        scoreBoxes[0].textContent = "VOS POINTS";
+        scoreBoxes[1].textContent = opponentPseudo.toUpperCase();
+        document.querySelector(".score-value").innerHTML = `<span id="points">0</span>/3`;
+        creditDisplay.textContent = "0/3";
+
+        startRoundUI();
+        contentResults.textContent = `Match lancé contre ${opponentPseudo} !`;
+    });
+
+    socket.on("opponentMadeChoice", () => {
+        contentChoiceComputer.innerHTML = "⏳";
+        contentResults.textContent = `${opponentPseudoLabel.textContent} a fait son choix !`;
+    });
+
+    socket.on("roundResult", ({ yourChoice, oppChoice, result, yourScore, oppScore, isGameOver }) => {
+        renderImage(contentChoiceComputer, oppChoice);
+        buttonChoice.style.pointerEvents = "auto";
+
+        points = yourScore;
+        opponentPoints = oppScore;
+        document.getElementById("points").textContent = points;
+        creditDisplay.textContent = `${opponentPoints}/3`;
+
+        if (result === "win") {
+            contentResults.textContent = "Point pour vous ! 🎉";
+            contentResults.className = "result-text win";
+        } else if (result === "lose") {
+            contentResults.textContent = `Point pour ${opponentPseudoLabel.textContent} ! 😢`;
+            contentResults.className = "result-text lose";
+        } else {
+            contentResults.textContent = "Égalité ! 🤝";
+            contentResults.className = "result-text";
+        }
+
+        if (!isGameOver) {
+            setTimeout(() => {
+                contentChoiceUser.classList.remove("active");
+                contentChoiceComputer.classList.remove("active");
+                contentChoiceUser.innerHTML = "?";
+                contentChoiceComputer.innerHTML = "?";
+            }, 1200);
+        }
+    });
+
+    // Fin du match Multijoueur
+    socket.on("matchEnd", ({ won }) => {
+        setTimeout(() => {
+            if (won) {
+                if (victoryTitle) victoryTitle.textContent = "🏆 Victoire !";
+                victoryMessage.textContent = `Bravo ! Vous avez battu ${opponentPseudoLabel.textContent} 3 à ${opponentPoints} !`;
+            } else {
+                if (victoryTitle) victoryTitle.textContent = "😢 Défaite...";
+                victoryMessage.textContent = `Dommage... ${opponentPseudoLabel.textContent} l'emporte 3 à ${points}. Revanche ?`;
+            }
+            showVictoryModal();
+        }, 1200);
+    });
+
+    socket.on("opponentLeft", () => {
+        alert("L'adversaire s'est déconnecté.");
+        window.location.href = window.location.pathname;
     });
 });
 
-function playRound() {
-    contentChoiceUser.textContent = choiceEmojis[userChoice];
-    contentChoiceUser.classList.add("active");
+// Choix de l'arme par le joueur
+possibleChoices.forEach(choice => {
+    choice.addEventListener("click", (e) => {
+        if (!gameStarted) return;
+        userChoice = e.currentTarget.id;
 
-    generateComputerChoice();
+        renderImage(contentChoiceUser, userChoice);
+        contentChoiceUser.classList.add("active");
 
-    setTimeout(() => {
-        verify();
-    }, 500);
+        if (gameMode === "solo") {
+            playRoundSolo();
+        } else {
+            buttonChoice.style.pointerEvents = "none";
+            contentResults.textContent = "En attente de l'adversaire...";
+            socket.emit("makeChoice", { roomId: currentRoomId, choice: userChoice });
+        }
+    });
+});
+
+function renderImage(container, choiceKey) {
+    container.innerHTML = `<img src="${choiceImages[choiceKey]}" alt="${choiceKey}">`;
 }
 
-function generateComputerChoice() {
-    const choices = ["rock", "paper", "scissors"];
-    const randomIndex = Math.floor(Math.random() * choices.length);
-    computerChoice = choices[randomIndex];
+function startRoundUI() {
+    gameStarted = true;
+    points = 0;
+    credit = 0;
+    opponentPoints = 0;
 
-    contentChoiceComputer.textContent = choiceEmojis[computerChoice];
-    contentChoiceComputer.classList.add("active");
-}
+    scoresContainer.classList.remove("hidden");
+    battleZone.classList.remove("hidden");
+    buttonChoice.classList.remove("hidden");
+    contentResults.classList.remove("hidden");
 
-function verify() {
+    contentChoiceUser.innerHTML = "?";
+    contentChoiceComputer.innerHTML = "?";
+    contentResults.textContent = "Faites votre choix !";
     contentResults.className = "result-text";
+}
+
+// Logique SOLO (instantanée + condition de défaite à -7)
+function playRoundSolo() {
+    const choices = ["rock", "paper", "scissors"];
+    computerChoice = choices[Math.floor(Math.random() * choices.length)];
+
+    renderImage(contentChoiceComputer, computerChoice);
+    contentChoiceComputer.classList.add("active");
 
     if (userChoice === computerChoice) {
-        contentResults.textContent = "Égalité! 🤝";
+        contentResults.textContent = "Égalité ! 🤝";
+        contentResults.className = "result-text";
     } else if (
         (userChoice === "rock" && computerChoice === "scissors") ||
         (userChoice === "scissors" && computerChoice === "paper") ||
         (userChoice === "paper" && computerChoice === "rock")
     ) {
-        if (credit < 0) {
-            credit++;
-        } else {
-            points++;
-        }
-        contentResults.textContent = "Vous gagnez! 🎉";
-        contentResults.classList.add("win");
+        if (credit < 0) credit++;
+        else points++;
+        contentResults.textContent = "Vous gagnez ! 🎉";
+        contentResults.className = "result-text win";
     } else {
-        if (points > 0) {
-            points--;
-        } else {
-            credit--;
-        }
-        contentResults.textContent = "Vous perdez! 😢";
-        contentResults.classList.add("lose");
+        if (points > 0) points--;
+        else credit--;
+        contentResults.textContent = "Vous perdez ! 😢";
+        contentResults.className = "result-text lose";
     }
 
-    updateDisplay();
-    checkVictory();
-
-    setTimeout(() => {
-        contentChoiceUser.classList.remove("active");
-        contentChoiceComputer.classList.remove("active");
-    }, 1000);
-}
-
-function updateDisplay() {
-    pointsDisplay.textContent = points;
+    document.getElementById("points").textContent = points;
     creditDisplay.textContent = credit;
-}
 
-function checkVictory() {
-    if (points === 7) {
-        if (credit <= 0) {
-            victoryMessage.textContent = "Vous avez gagné la partie avec un score parfait! 🏆";
-        } else {
-            victoryMessage.textContent = `Vous avez gagné! Crédit final: ${credit}`;
-        }
-        showVictory();
+    // 4. Vérification Victoire ou Défaite (-7 crédits)
+    if (points >= 7) {
+        if (victoryTitle) victoryTitle.textContent = "🏆 Victoire !";
+        victoryMessage.textContent = "Félicitations, vous avez atteint 7 points consécutifs !";
+        showVictoryModal();
+    } else if (credit <= -7) {
+        if (victoryTitle) victoryTitle.textContent = "💀 Défaite...";
+        victoryMessage.textContent = "Game Over ! Votre crédit est tombé à -7. Vous avez perdu !";
+        showVictoryModal();
+    } else {
+        setTimeout(() => {
+            contentChoiceUser.classList.remove("active");
+            contentChoiceComputer.classList.remove("active");
+            contentChoiceUser.innerHTML = "?";
+            contentChoiceComputer.innerHTML = "?";
+        }, 1000);
     }
 }
 
-function showVictory() {
-    // Afficher le modal de victoire au centre de la page
-    victoryModal.style.display = "flex";
-    gameStarted = false;
 
-    // On cache le reste du jeu pour mettre en avant le message
-    scoresContainer.style.display = "none";
-    battleZone.style.display = "none";
-    buttonChoice.style.display = "none";
+function showVictoryModal() {
+    victoryModal.classList.remove("hidden");
+    scoresContainer.classList.add("hidden");
+    battleZone.classList.add("hidden");
+    buttonChoice.classList.add("hidden");
+    contentResults.classList.add("hidden");
+    subtitle.classList.add("hidden");
+    gameStarted = false;
 }
 
+playAgainButton.addEventListener("click", () => {
+    window.location.href = window.location.pathname;
+});
