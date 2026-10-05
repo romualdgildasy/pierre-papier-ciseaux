@@ -101,8 +101,8 @@ btnMulti.addEventListener("click", () => {
     btnCopyLink.addEventListener("click", () => {
         const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
         navigator.clipboard.writeText(inviteUrl);
-        btnCopyLink.textContent = "✅ Lien copié !";
-        setTimeout(() => btnCopyLink.textContent = "📋 Copier le lien d'invitation", 2000);
+        btnCopyLink.textContent = "Lien copié !";
+        setTimeout(() => btnCopyLink.textContent = " Copier le lien d'invitation", 2000);
     });
 
     socket.on("gameStart", ({ opponentPseudo }) => {
