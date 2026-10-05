@@ -4,6 +4,7 @@ const choiceImages = {
     scissors: "./images/scissors.png"
 };
 
+
 // DOM Elements
 const lobbyScreen = document.getElementById("lobbyScreen");
 const multiLobbyScreen = document.getElementById("multiLobbyScreen");
@@ -90,8 +91,12 @@ btnMulti.addEventListener("click", () => {
     lobbyScreen.classList.add("hidden");
     multiLobbyScreen.classList.remove("hidden");
 
-    // Connexion au serveur Node.js local
-    socket = io("http://localhost:3000");
+    // Connexion au serveur Node.js local et render
+   const SOCKET_URL = window.location.hostname === "localhost" 
+    ? "http://localhost:3000" 
+    : "https://rps-server-ikzi.onrender.com";
+
+    socket = io(SOCKET_URL);
 
     currentRoomId = roomParam || Math.random().toString(36).substring(2, 7).toUpperCase();
     roomCodeDisplay.textContent = currentRoomId;
