@@ -48,6 +48,14 @@ let gameStarted = false;
 let gameMode = "solo";
 let currentRoomId = null;
 let socket = null;
+let matchFinished = false;
+
+// Identifiant stable du joueur (reste le même après une reconnexion)
+let playerId = sessionStorage.getItem("rps_pid");
+if (!playerId) {
+    playerId = Math.random().toString(36).slice(2, 10);
+    sessionStorage.setItem("rps_pid", playerId);
+}
 
 // Gestion du pseudo avec LocalStorage
 const savedPseudo = localStorage.getItem("rps_pseudo");
@@ -85,6 +93,41 @@ btnSolo.addEventListener("click", () => {
     startRoundUI();
 });
 
+// Affichage de l'écran "adversaire parti"
+function showOpponentLeft() {
+    matchFinished = true;
+    sessionStorage.removeItem("rps_room");
+    gameStarted = false;
+
+    scoresContainer.classList.add("hidden");
+    battleZone.classList.add("hidden");
+    buttonChoice.classList.add("hidden");
+    contentResults.classList.add("hidden");
+    if (victoryModal) victoryModal.classList.add("hidden");
+
+    if (disconnectModal) {
+        disconnectModal.classList.remove("hidden");
+    } else {
+        alert("L'adversaire s'est déconnecté.");
+        window.location.href = window.location.pathname;
+    }
+}
+
+// Prépare l'écran de match multijoueur
+function setupMultiMatchUI(opponentPseudo) {
+    opponentPseudoLabel.textContent = opponentPseudo;
+    multiLobbyScreen.classList.add("hidden");
+
+    subtitle.classList.remove("hidden");
+    subtitle.textContent = "Premier à 3 points gagne le match !";
+    scoreBoxes[0].textContent = "VOS POINTS";
+    scoreBoxes[1].textContent = opponentPseudo.toUpperCase();
+    document.querySelector(".score-value").innerHTML = `<span id="points">0</span>/3`;
+    creditDisplay.textContent = "0/3";
+
+    startRoundUI();
+}
+
 // 2. MODE MULTIJOUEUR
 btnMulti.addEventListener("click", () => {
     gameMode = "multi";
@@ -103,23 +146,37 @@ btnMulti.addEventListener("click", () => {
         ? "http://localhost:3000" 
         : "https://rps-server-ikzi.onrender.com";
 
+    // Le code de salle survit à un rechargement de la page
+    currentRoomId = roomParam
+        || sessionStorage.getItem("rps_room")
+        || Math.random().toString(36).substring(2, 7).toUpperCase();
+    sessionStorage.setItem("rps_room", currentRoomId);
+    roomCodeDisplay.textContent = currentRoomId;
+
     // Connexion optimisée avec transports websocket et polling
     socket = io(SOCKET_URL, {
         transports: ["websocket", "polling"]
     });
 
+    // "connect" se redéclenche à chaque reconnexion : on rejoint la salle à chaque fois
     socket.on("connect", () => {
-        waitingMsg.textContent = "⏳ En attente de ton adversaire...";
+        if (matchFinished) return;
+        if (!gameStarted) waitingMsg.textContent = "⏳ En attente de ton adversaire...";
+        socket.emit("joinRoom", { roomId: currentRoomId, pseudo: myName, playerId });
     });
 
     socket.on("connect_error", () => {
-        waitingMsg.textContent = "⏳ Réveil du serveur  en cours... Patiente 20-30 secondes.";
+        if (!gameStarted) waitingMsg.textContent = "⏳ Réveil du serveur  en cours... Patiente 20-30 secondes.";
     });
 
-    currentRoomId = roomParam || Math.random().toString(36).substring(2, 7).toUpperCase();
-    roomCodeDisplay.textContent = currentRoomId;
+    socket.on("roomFull", () => {
+        waitingMsg.textContent = "❌ Cette salle est déjà pleine.";
+    });
 
-    socket.emit("joinRoom", { roomId: currentRoomId, pseudo: myName });
+    // Si on revient dans une salle qui n'existe plus alors que le match avait commencé
+    socket.on("waitingForOpponent", () => {
+        if (gameStarted) showOpponentLeft();
+    });
 
     btnCopyLink.addEventListener("click", () => {
         const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
@@ -129,23 +186,34 @@ btnMulti.addEventListener("click", () => {
     });
 
     socket.on("gameStart", ({ opponentPseudo }) => {
-        opponentPseudoLabel.textContent = opponentPseudo;
-        multiLobbyScreen.classList.add("hidden");
-
-        subtitle.classList.remove("hidden");
-        subtitle.textContent = "Premier à 3 points gagne le match !";
-        scoreBoxes[0].textContent = "VOS POINTS";
-        scoreBoxes[1].textContent = opponentPseudo.toUpperCase();
-        document.querySelector(".score-value").innerHTML = `<span id="points">0</span>/3`;
-        creditDisplay.textContent = "0/3";
-
-        startRoundUI();
+        setupMultiMatchUI(opponentPseudo);
         contentResults.textContent = `Match lancé contre ${opponentPseudo} !`;
     });
 
     socket.on("opponentMadeChoice", () => {
         contentChoiceComputer.innerHTML = "⏳";
         contentResults.textContent = `${opponentPseudoLabel.textContent} a fait son choix !`;
+    });
+
+    socket.on("opponentAway", () => {
+        contentResults.textContent = `${opponentPseudoLabel.textContent} est parti un instant, on l'attend...`;
+        contentResults.className = "result-text";
+    });
+
+    socket.on("opponentBack", () => {
+        contentResults.textContent = `${opponentPseudoLabel.textContent} est de retour ! Faites votre choix.`;
+        contentResults.className = "result-text";
+    });
+
+    // Retour dans un match déjà commencé : on restaure les scores
+    socket.on("resync", ({ opponentPseudo, yourScore, oppScore }) => {
+        setupMultiMatchUI(opponentPseudo);
+        points = yourScore;
+        opponentPoints = oppScore;
+        document.getElementById("points").textContent = points;
+        creditDisplay.textContent = `${opponentPoints}/3`;
+        buttonChoice.style.pointerEvents = "auto";
+        contentResults.textContent = "Reconnecté ! Faites votre choix.";
     });
 
     socket.on("roundResult", ({ yourChoice, oppChoice, result, yourScore, oppScore, isGameOver }) => {
@@ -180,6 +248,9 @@ btnMulti.addEventListener("click", () => {
 
     // Fin du match Multijoueur
     socket.on("matchEnd", ({ won }) => {
+        matchFinished = true;
+        sessionStorage.removeItem("rps_room");
+
         setTimeout(() => {
             if (won) {
                 if (victoryTitle) victoryTitle.textContent = "🏆 Victoire !";
@@ -194,18 +265,7 @@ btnMulti.addEventListener("click", () => {
 
     // Popup personnalisée en cas de déconnexion (plus d'alert bloquant)
     socket.on("opponentLeft", () => {
-        scoresContainer.classList.add("hidden");
-        battleZone.classList.add("hidden");
-        buttonChoice.classList.add("hidden");
-        contentResults.classList.add("hidden");
-        if (victoryModal) victoryModal.classList.add("hidden");
-
-        if (disconnectModal) {
-            disconnectModal.classList.remove("hidden");
-        } else {
-            alert("L'adversaire s'est déconnecté.");
-            window.location.href = window.location.pathname;
-        }
+        showOpponentLeft();
     });
 });
 
@@ -308,11 +368,13 @@ function showVictoryModal() {
 }
 
 playAgainButton.addEventListener("click", () => {
+    sessionStorage.removeItem("rps_room");
     window.location.href = window.location.pathname;
 });
 
 if (btnDisconnectHome) {
     btnDisconnectHome.addEventListener("click", () => {
+        sessionStorage.removeItem("rps_room");
         window.location.href = window.location.pathname;
     });
 }
