@@ -1,9 +1,9 @@
+// CONFIGURATION DE TES IMAGES
 const choiceImages = {
     rock: "./images/rock.png",
     paper: "./images/paper.png",
     scissors: "./images/scissors.png"
 };
-
 
 // DOM Elements
 const lobbyScreen = document.getElementById("lobbyScreen");
@@ -35,6 +35,9 @@ const contentChoiceComputer = document.getElementById("computerChoice");
 const contentResults = document.getElementById("results");
 const possibleChoices = document.querySelectorAll(".choice-btn");
 
+// Popup Déconnexion
+const disconnectModal = document.getElementById("disconnectModal");
+const btnDisconnectHome = document.getElementById("btnDisconnectHome");
 
 let userChoice = null;
 let computerChoice = null;
@@ -65,7 +68,7 @@ if (roomParam) {
     btnMulti.textContent = "Rejoindre la partie";
 }
 
-// 1. MODE SOLO (7 points + système de crédit d'origine)
+// 1. MODE SOLO
 btnSolo.addEventListener("click", () => {
     gameMode = "solo";
     const myName = getPseudo();
@@ -82,7 +85,7 @@ btnSolo.addEventListener("click", () => {
     startRoundUI();
 });
 
-// 2. MODE MULTIJOUEUR (Premier à 3 points sec)
+// 2. MODE MULTIJOUEUR
 btnMulti.addEventListener("click", () => {
     gameMode = "multi";
     const myName = getPseudo();
@@ -91,12 +94,27 @@ btnMulti.addEventListener("click", () => {
     lobbyScreen.classList.add("hidden");
     multiLobbyScreen.classList.remove("hidden");
 
-    // Connexion au serveur Node.js local et render
-   const SOCKET_URL = window.location.hostname === "localhost" 
-    ? "http://localhost:3000" 
-    : "https://rps-server-ikzi.onrender.com";
+    const waitingMsg = document.getElementById("waitingMessage");
+    waitingMsg.textContent = " Connexion au serveur patientez ...";
 
-    socket = io(SOCKET_URL);
+    // Détection de l'URL du serveur
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const SOCKET_URL = isLocal 
+        ? "http://localhost:3000" 
+        : "https://rps-server-ikzi.onrender.com";
+
+    // Connexion optimisée avec transports websocket et polling
+    socket = io(SOCKET_URL, {
+        transports: ["websocket", "polling"]
+    });
+
+    socket.on("connect", () => {
+        waitingMsg.textContent = "⏳ En attente de ton adversaire...";
+    });
+
+    socket.on("connect_error", () => {
+        waitingMsg.textContent = "⏳ Réveil du serveur  en cours... Patiente 20-30 secondes.";
+    });
 
     currentRoomId = roomParam || Math.random().toString(36).substring(2, 7).toUpperCase();
     roomCodeDisplay.textContent = currentRoomId;
@@ -106,7 +124,7 @@ btnMulti.addEventListener("click", () => {
     btnCopyLink.addEventListener("click", () => {
         const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
         navigator.clipboard.writeText(inviteUrl);
-        btnCopyLink.textContent = "Lien copié !";
+        btnCopyLink.textContent = " Lien copié !";
         setTimeout(() => btnCopyLink.textContent = " Copier le lien d'invitation", 2000);
     });
 
@@ -174,13 +192,24 @@ btnMulti.addEventListener("click", () => {
         }, 1200);
     });
 
+    // Popup personnalisée en cas de déconnexion (plus d'alert bloquant)
     socket.on("opponentLeft", () => {
-        alert("L'adversaire s'est déconnecté.");
-        window.location.href = window.location.pathname;
+        scoresContainer.classList.add("hidden");
+        battleZone.classList.add("hidden");
+        buttonChoice.classList.add("hidden");
+        contentResults.classList.add("hidden");
+        if (victoryModal) victoryModal.classList.add("hidden");
+
+        if (disconnectModal) {
+            disconnectModal.classList.remove("hidden");
+        } else {
+            alert("L'adversaire s'est déconnecté.");
+            window.location.href = window.location.pathname;
+        }
     });
 });
 
-// Choix de l'arme par le joueur
+// Choix de l'arme
 possibleChoices.forEach(choice => {
     choice.addEventListener("click", (e) => {
         if (!gameStarted) return;
@@ -220,7 +249,7 @@ function startRoundUI() {
     contentResults.className = "result-text";
 }
 
-// Logique SOLO (instantanée + condition de défaite à -7)
+// Logique SOLO
 function playRoundSolo() {
     const choices = ["rock", "paper", "scissors"];
     computerChoice = choices[Math.floor(Math.random() * choices.length)];
@@ -250,7 +279,6 @@ function playRoundSolo() {
     document.getElementById("points").textContent = points;
     creditDisplay.textContent = credit;
 
-    // 4. Vérification Victoire ou Défaite (-7 crédits)
     if (points >= 7) {
         if (victoryTitle) victoryTitle.textContent = "🏆 Victoire !";
         victoryMessage.textContent = "Félicitations, vous avez atteint 7 points consécutifs !";
@@ -269,7 +297,6 @@ function playRoundSolo() {
     }
 }
 
-
 function showVictoryModal() {
     victoryModal.classList.remove("hidden");
     scoresContainer.classList.add("hidden");
@@ -283,3 +310,9 @@ function showVictoryModal() {
 playAgainButton.addEventListener("click", () => {
     window.location.href = window.location.pathname;
 });
+
+if (btnDisconnectHome) {
+    btnDisconnectHome.addEventListener("click", () => {
+        window.location.href = window.location.pathname;
+    });
+}

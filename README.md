@@ -261,7 +261,7 @@ git push origin feature/ma-nouvelle-fonctionnalite
 
 ---
 
-## 📄 Licence
+##  Licence
 
 Ce projet est distribué sous la licence MIT.
 
@@ -269,8 +269,8 @@ Tu peux librement l’utiliser, le modifier et le partager en gardant la mention
 
 ---
 
-## 👨‍💻 Auteur
+##  Auteur
 
-Développé par **ISTEC Romuald**.
+Développé par **Lerusse**.
 
 Si ce projet t’a plu, n’hésite pas à lui laisser une étoile ⭐ sur GitHub.

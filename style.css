@@ -1,4 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --bg: #080b16;
+    --surface: #111827;
+    --surface-2: #172033;
+    --line: #2a3854;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --player: #22d3ee;
+    --opponent: #fb2c7b;
+    --success: #a3ff12;
+    --danger: #ff4d6d;
+}
 
 * {
     margin: 0;
@@ -7,85 +20,97 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Inter", sans-serif;
     min-height: 100vh;
+    color: var(--text);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background:
+        radial-gradient(circle at 15% 20%, rgba(34, 211, 238, 0.15), transparent 28rem),
+        radial-gradient(circle at 85% 75%, rgba(251, 44, 123, 0.15), transparent 28rem),
+        var(--bg);
     padding: 15px;
 }
 
-/* INDISPENSABLE : permet de cacher/afficher les étapes du jeu */
 .hidden {
     display: none !important;
 }
 
 .game-container {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    background: rgba(17, 24, 39, 0.88);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
     padding: 30px;
     max-width: 600px;
     width: 100%;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
 }
 
 h1 {
     text-align: center;
-    color: #667eea;
-    font-size: 2.2rem;
+    color: var(--text);
+    font-family: "Archivo Black", sans-serif;
+    font-size: 2.1rem;
     margin-bottom: 5px;
-    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .subtitle {
     text-align: center;
-    color: #666;
+    color: var(--muted);
     font-size: 0.9rem;
     margin-bottom: 25px;
 }
 
-/* Instructions & Salons d'attente */
+/* Modals & Salons */
 .instructions {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--text);
     padding: 25px;
-    border-radius: 15px;
+    border-radius: 18px;
     text-align: center;
     margin-bottom: 25px;
 }
 
 .instructions h2 {
-    font-size: 1.5rem;
+    font-family: "Archivo Black", sans-serif;
+    font-size: 1.4rem;
     margin-bottom: 12px;
+    color: var(--text);
 }
 
 .instructions p {
     line-height: 1.5;
     margin-bottom: 20px;
     font-size: 0.95rem;
+    color: var(--muted);
 }
 
-/* Champ de saisie du pseudo */
+/* Champ de pseudo */
 .pseudo-input {
     width: 85%;
-    max-width: 250px;
+    max-width: 260px;
     padding: 12px 18px;
     border-radius: 50px;
-    border: 2px solid white;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
     font-size: 1rem;
     font-weight: 600;
     text-align: center;
     margin-bottom: 20px;
     outline: none;
     font-family: inherit;
-    color: #4a5568;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
 }
 
 .pseudo-input:focus {
-    border-color: #ffd700;
+    border-color: var(--player);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
 }
 
 .mode-buttons {
@@ -95,51 +120,55 @@ h1 {
     flex-wrap: wrap;
 }
 
-/* Boutons d'action */
+/* Boutons principaux */
 .start-btn {
-    background: white;
-    color: #667eea;
-    border: none;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--line);
     padding: 12px 28px;
     border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
 }
 
 .start-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    border-color: var(--player);
+    color: var(--player);
 }
 
 .online-btn {
-    background: #10b981;
-    color: white;
+    background: var(--player);
+    color: var(--bg);
+    border: none;
+    font-weight: 800;
 }
 
 .online-btn:hover {
-    background: #059669;
+    background: #06b6d4;
+    color: var(--bg);
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
 }
 
-/* Badge du code de salon multijoueur */
 .room-code-badge {
     display: inline-block;
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(34, 211, 238, 0.1);
+    color: var(--player);
+    border: 1px dashed var(--player);
     padding: 8px 24px;
     border-radius: 12px;
     font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: 3px;
+    font-weight: 800;
+    letter-spacing: 4px;
     margin-bottom: 15px;
-    border: 1px dashed white;
 }
 
 .waiting-text {
     margin-top: 15px;
     font-style: italic;
-    opacity: 0.9;
+    color: var(--muted);
 }
 
 /* Scores */
@@ -152,26 +181,34 @@ h1 {
 
 .score-box {
     flex: 1;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
     padding: 15px;
-    border-radius: 15px;
+    border-radius: 16px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.score-box:first-child {
+    border-top: 3px solid var(--player);
+}
+
+.score-box:last-child {
+    border-top: 3px solid var(--opponent);
 }
 
 .score-box h3 {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     margin-bottom: 5px;
     letter-spacing: 1px;
-    opacity: 0.95;
+    color: var(--muted);
     text-transform: uppercase;
 }
 
 .score-value {
+    font-family: "Archivo Black", sans-serif;
     font-size: 1.8rem;
-    font-weight: 700;
+    color: var(--text);
 }
 
 /* Zone de combat */
@@ -189,35 +226,43 @@ h1 {
 }
 
 .player-name {
-    color: #667eea;
     margin-bottom: 12px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 800;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 120px;
     margin-left: auto;
     margin-right: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#userPseudoLabel {
+    color: var(--player);
+}
+
+#opponentPseudoLabel {
+    color: var(--opponent);
 }
 
 .choice-img {
     width: 110px;
     height: 110px;
-    background: #f0f0f0;
+    background: var(--surface-2);
+    border: 2px solid var(--line);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
     font-size: 3rem;
-    color: #667eea;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    color: var(--muted);
+    transition: all 0.25s ease;
     overflow: hidden;
 }
 
-/* VOS VRAIES IMAGES DANS LES BULLES */
 .choice-img img {
     width: 70%;
     height: 70%;
@@ -227,15 +272,15 @@ h1 {
 }
 
 .choice-img.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    border-color: var(--player);
+    box-shadow: 0 0 25px rgba(34, 211, 238, 0.35);
     transform: scale(1.08);
 }
 
 .vs-text {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #667eea;
+    font-family: "Archivo Black", sans-serif;
+    font-size: 1.8rem;
+    color: var(--line);
     margin: 0 10px;
 }
 
@@ -243,18 +288,20 @@ h1 {
 .result-text {
     text-align: center;
     font-size: 1.25rem;
-    font-weight: 600;
-    color: #667eea;
+    font-weight: 800;
+    color: var(--text);
     margin: 15px 0;
     min-height: 35px;
 }
 
 .result-text.win {
-    color: #10b981;
+    color: var(--success);
+    text-shadow: 0 0 12px rgba(163, 255, 18, 0.4);
 }
 
 .result-text.lose {
-    color: #ef4444;
+    color: var(--danger);
+    text-shadow: 0 0 12px rgba(255, 77, 109, 0.4);
 }
 
 /* Boutons de sélection d'armes */
@@ -266,21 +313,20 @@ h1 {
 }
 
 .choice-btn {
-    background: white;
-    border: 2px solid #667eea;
-    color: #667eea;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--text);
     padding: 12px 24px;
     border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* IMAGES DANS LES BOUTONS DU BAS */
 .choice-btn img {
     width: 24px;
     height: 24px;
@@ -289,14 +335,15 @@ h1 {
 }
 
 .choice-btn:hover {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--surface);
+    border-color: var(--player);
+    color: var(--player);
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(34, 211, 238, 0.2);
 }
 
 /* =============================================
-   RESPONSIVE : ADAPTATION PARFAITE AUX SMARTPHONES
+   RESPONSIVE SMARTPHONE
    ============================================= */
 @media (max-width: 480px) {
     body {
@@ -322,12 +369,12 @@ h1 {
     }
 
     .player-name {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         max-width: 90px;
     }
 
     .vs-text {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         margin: 0 5px;
     }
 
